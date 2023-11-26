@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         set: val => md5(val),
-        // select:false
+        select: false
     },
     phone: {
         type: String,

@@ -2,11 +2,13 @@ var express = require('express');
 var router = express.Router();
 const userController = require("../controller/userController");
 const validator = require("../middleware/validator/userValidator");
+const { verifyToken } = require("../util/jwt");
 
 /* GET users listing. */
 router
-  .post('/register', validator.register, userController.register)
-  .get("/lists", userController.list)
+  .post('/registers', validator.register, userController.register)
+  .post('/logins', validator.login, userController.login)
+  .get("/lists", verifyToken, userController.list)
   .delete("/", userController.delete)
 
 module.exports = router;
