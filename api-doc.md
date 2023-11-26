@@ -13,9 +13,13 @@
 5.使用JSON格式进行数据通信。
 
 ### 用户注册
+
 path: /user/registers
+
 method: post
+
 请求体：
+
 ```
 {
     "username": "kaka",
