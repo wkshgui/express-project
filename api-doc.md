@@ -18,7 +18,16 @@ path: /user/registers
 
 method: post
 
-请求体：
+是否认真： 否
+
+|   字段名  | 字段类型 | 是否必填 |
+| :------: | :-----: | :-----: |
+| username | string  |    是   |
+|   email  | string  |    是   |
+|   phone  | string  |    是   |
+| password | string  |    是   |
+
+请求示例：
 
 ```
 {
@@ -28,7 +37,35 @@ method: post
     "password": "123456"
 }
 ```
+响应示例：
 
-|   字段名  | 字段类型 | 是否必填 |
-| :------: | :-----: | :-----: |
-| username | string  | 是       |
+```
+// success
+{
+    "user": {
+        "username": "kaka",
+        "email": "kaka@qq.com",
+        "phone": "13255467789",
+        "image": null,
+        "createAt": "2023-11-26T12:02:44.408Z",
+        "updateAt": "2023-11-26T12:02:44.408Z",
+        "_id": "656334868effe969299e8937",
+        "__v": 0
+    }
+}
+```
+
+```
+// error
+{
+    "error": [
+        {
+            "type": "field",
+            "value": "13255467789",
+            "msg": "手机号已被注册",
+            "path": "phone",
+            "location": "body"
+        }
+    ]
+}
+```
