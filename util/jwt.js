@@ -13,18 +13,22 @@ module.exports.createToken = async userInfo => {
     return token;
 };
 
-module.exports.verifyToken = async (req, res, next) => {
-    let token = req.headers.authorization;
-    token = token ? token.split("Bearer ")[1] : null;
-    if(!token) {
-        res.status(402).json({error: "请传入token"});
-        return;
-    }
-    try {
-        const userinfo = await verify(token, uuid);
-        req.user = userinfo;
-        next();
-    } catch (e) {
-        res.status(402).json({error: "无效token"})
+module.exports.verifyToken = function(required=true) {
+    return async (req, res, next) => {
+        let token = req.headers.authorization;
+        token = token ? token.split("Bearer ")[1] : null;
+        if(token) {
+            try {
+                const userinfo = await verify(token, uuid);
+                req.user = userinfo;
+                next();
+            } catch (e) {
+                res.status(402).json({error: "无效token"})
+            }
+        } else if(required) {
+            res.status(402).json({error: "请传入token"});
+        } else {
+            next();
+        }
     }
 }

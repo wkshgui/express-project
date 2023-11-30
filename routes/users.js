@@ -3,12 +3,20 @@ var router = express.Router();
 const userController = require("../controller/userController");
 const validator = require("../middleware/validator/userValidator");
 const { verifyToken } = require("../util/jwt");
+const multer = require('multer');
+const upload = multer({dest: 'public/'});
 
-/* GET users listing. */
 router
+  .get('/getchannel', verifyToken(), userController.getchannel)
+  .get('/getsubscribe/:userId', userController.getsubscribe)
+  .get('/getuser/:userId', verifyToken(false), userController.getuser)
+  .get('/subscribe/:userId', verifyToken(), userController.subscribe)
+  .get('/unsubscribe/:userId', verifyToken(), userController.unsubscribe)
   .post('/registers', validator.register, userController.register)
   .post('/logins', validator.login, userController.login)
-  .get("/lists", verifyToken, userController.list)
+  .get("/lists", verifyToken(), userController.list)
+  .put("/", verifyToken(), validator.update, userController.update)
+  .post("/headimg", verifyToken(), upload.single("headimg"), userController.headimg)
   .delete("/", userController.delete)
 
 module.exports = router;
