@@ -9,7 +9,12 @@ const {videoValidator} = require("../middleware/validator/videoValidator");
 
 router.get('/videolist', videoController.videolist)
     .get('/video/:videoId', verifyToken(false), videoController.video)
-    .post('/comment/:videoId', verifyToken(), userController.comment)
+    .post('/comment/:videoId', verifyToken(), videoController.comment)
+    .get('/commentlist/:videoId', videoController.commentlist)
+    .delete('/comment/:videoId/:commentId', videoController.deletecomment)
+    .get('/like/:videoId', verifyToken(), videoController.likevideo)
+    .get('/dislike/:videoId', verifyToken(), videoController.dislikevideo)
+    .get('/likelist', verifyToken(), videoController.likelist)
   // .get('/getvod', verifyToken(), vodController.getvod);
     // .get('/createvideo', verifyToken(), videoValidator, vodController.createvideo);
 

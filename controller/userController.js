@@ -1,7 +1,7 @@
 const fs = require("fs");
 const {promisify} = require('util');
 const lodash = require("lodash");
-const { User, Subscribe, Videocomment, Video } = require("../model/index");
+const { User, Subscribe } = require("../model/index");
 const { createToken } = require("../util/jwt");
 
 const rename = promisify(fs.rename);
@@ -178,21 +178,4 @@ exports.getchannel = async(req, res)=>{
         ]);
     });
     res.status(200).json(channelList);
-}
-
-// 评论
-exports.comment = async(req, res)=>{
-    const {videoId} = req.params;
-    const videoInfo = await Video.findById(videoId);
-    if(!videoInfo) {
-        return res.status(404).json({err:"视频不存在"});
-    }
-    const comment = await new Videocomment({
-        content: req.body.content,
-        video: videoId,
-        user: req.user.userInfo._id
-    }).save();
-    videoInfo.commentCount++;
-    await videoInfo.save();
-    res.status(201).json(comment);
 }
