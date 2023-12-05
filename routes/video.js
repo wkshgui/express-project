@@ -15,6 +15,8 @@ router.get('/videolist', videoController.videolist)
     .get('/like/:videoId', verifyToken(), videoController.likevideo)
     .get('/dislike/:videoId', verifyToken(), videoController.dislikevideo)
     .get('/likelist', verifyToken(), videoController.likelist)
+    .get('/collect/:videoId', verifyToken(), videoController.collect)
+    .get('/gethots/:topnum', verifyToken(), videoController.gethots)
   // .get('/getvod', verifyToken(), vodController.getvod);
     // .get('/createvideo', verifyToken(), videoValidator, vodController.createvideo);
 

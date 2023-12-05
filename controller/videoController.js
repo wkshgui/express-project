@@ -1,4 +1,7 @@
-const {Video, Videocomment, Videolike, Subscribe} = require("../model/index");
+const {Video, Videocomment, Videolike, Subscribe, Collect} = require("../model/index");
+const { hotInc, topHots } = require("../model/redis/redishotsinc");
+
+// 观看 +1  点赞 +2  评论 +2  收藏 +3
 
 exports.videolist = async(req, res) => {
     const {pageNum=1, pageSize=10} = req.body;
@@ -27,6 +30,7 @@ exports.createvideo = async(req, res)=>{
     res.send(req.body);
 }
 
+// 观看
 exports.video = async(req, res)=>{
     const { videoId } = req.params;
     let videoInfo = await Video.findById(videoId)
@@ -48,6 +52,8 @@ exports.video = async(req, res)=>{
             videoInfo.isSubscribe = true;
         }
     }
+    await hotInc(videoId, 1);
+
     res.status(200).json(videoInfo)
 }
 
@@ -63,8 +69,10 @@ exports.comment = async(req, res)=>{
         video: videoId,
         user: req.user.userInfo._id
     }).save();
+    await hotInc(videoId, 2);
     videoInfo.commentCount++;
     await videoInfo.save();
+
     res.status(201).json(comment);
 }
 
@@ -101,6 +109,7 @@ exports.deletecomment = async(req, res)=>{
     res.status(200).json({msg: "删除成功"});
 }
 
+// 喜欢
 exports.likevideo = async(req, res)=>{
     const videoId = req.params.videoId;
     const userId = req.user.userInfo._id;
@@ -120,12 +129,14 @@ exports.likevideo = async(req, res)=>{
     }else if(doc && doc.like === -1){
         doc.like = 1;
         await doc.save();
+        await hotInc(videoId, 2);
     }else{
         await new Videolike({
             user: userId,
             video: videoId,
             like: 1
         }).save();
+        await hotInc(videoId, 2);
     }
 
     video.likeCount = await Videolike.countDocuments({
@@ -198,4 +209,38 @@ exports.likelist = async(req, res)=>{
 
     const likeCount = await Videolike.countDocuments({like: 1, user: req.user.userInfo._id});
     res.status(200).json({likes, likeCount});
+}
+
+exports.collect = async(req, res)=>{
+    const videoId = req.params.videoId;
+    const userId = req.user.userInfo._id;
+
+    const video = await Video.findById(videoId);
+    if(!video){
+        return res.status(404).json({err: "视频不存在"});
+    }
+    const doc = await Collect.findOne({
+        user: userId,
+        video: videoId
+    });
+    if(doc){
+        return res.status(403).json({err: "视频已经被收藏"});
+    }
+    const mycollect = await Collect({
+        user: userId,
+        video: videoId
+    }).save();
+
+    if(mycollect) {
+        await hotInc(videoId, 3);
+    }
+
+    res.status(201).json(mycollect);
+}
+
+exports.gethots = async(req, res)=>{
+    const topnum = req.params.topnum;
+    const tops = await topHots(topnum);
+
+    res.status(200).json({tops});
 }
